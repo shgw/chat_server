@@ -17,4 +17,4 @@ HEADERS += \
     svrsock.h \
     socketmessage.h
 
-DEFINES += __LINUX
+LIBS += C:\Qt\Qt5.12.0\Tools\mingw730_64\x86_64-w64-mingw32\lib\libws2_32.a

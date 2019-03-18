@@ -1,6 +1,6 @@
 #include "svrsock.h"
 #include "socketmessage.h"
-
+#include <string.h>
 
 #define SELECT_TIMEOUT  1000
 #define MSG_MAX_BUFF    2048
