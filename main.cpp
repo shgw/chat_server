@@ -3,6 +3,7 @@
 #include <string.h>
 #ifdef __LINUX
 #include <unistd.h>
+#define Sleep usleep
 #endif
 
 using namespace std;
@@ -23,9 +24,7 @@ int main()
         nRet = sock.Wait();
         if( nRet == CSOCKET_CONTINUE )
         {
-#ifndef __LINUX
             Sleep(1);
-#endif
             continue;
         }
         else if ( nRet > 0)
@@ -42,35 +41,28 @@ int main()
                 nRet = sock.RecvMsg( szBuff );
                 if( nRet == CSOCKET_CONTINUE)
                 {
-                    cout << "CSOCKET_CONTINUE" << endl;
-#ifndef __LINUX
+                    //cout << "CSOCKET_CONTINUE" << endl;
                     Sleep(1);
-#endif
                     continue;
                 }
                 else if ( nRet == CSOCKET_SUCC)
                 {
-                    cout << "CSOCKET_SUCC" << szBuff << endl;
+                    //cout << "CSOCKET_SUCC" << szBuff << endl;
                     sock.ProcMsg( szBuff );
 
+                }
+                else
+                {
+                    //cout << "11111111111111" << endl;
+                    sock.DisconnectSock(nRet);
                 }
             }
 
         }
-        else
-        {
-            cout << "select fail" << GetLastError() << endl;
-#ifndef __LINUX
-            Sleep(1000);
-#else
-            sleep(1);
-#endif
-        }
-#ifndef __LINUX
+
         Sleep(1);
-#endif
     }
 
-    cout << "11111111111111111111" << endl;
+    //cout << "11111111111111111111" << endl;
     return 0;
 }

@@ -1,7 +1,8 @@
 #ifndef LOG_H
 #define LOG_H
 
-
+#define LOG_LEVEL_NOTICE    0
+#define LOG_LEVEL_FATAL     1
 #define LOG_LEVEL_ERROR     100
 #define LOG_LEVEL_WARN      500
 #define LOG_LEVEL_NORMAL    1000

@@ -10,6 +10,7 @@ SvrSock::SvrSock()
 {
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ServerSocket.txt");
     m_sock.SetSocketEx( "0.0.0.0", 6788, 100, 100 );
+    m_log.WriteLog( LOG_LEVEL_NOTICE, "==========SERVER START============");
     m_sock.StartServerSocket();
 }
 
@@ -18,7 +19,9 @@ SvrSock::SvrSock( char* szIP, int nPort, int nRcvTimeOut, int nSndTimeOut)
 {
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ServerSocket.txt");
     m_sock.SetSocketEx( szIP, nPort, nRcvTimeOut, nSndTimeOut );
+    m_log.WriteLog( LOG_LEVEL_NOTICE, "==========SERVER START============");
     m_sock.StartServerSocket();
+
 }
 
 
@@ -110,6 +113,7 @@ void SvrSock::DisconnectSock( SOCKET cltsock )
 
     }
 
+    m_log.WriteLog( LOG_LEVEL_NORMAL, "client disconnect cltsock[%d] username[%s]", cltsock, body->username);
     m_cltMap.erase( cltsock );
     m_sock.DisconnectSocket( cltsock );
 }
@@ -264,11 +268,11 @@ void SvrSock::ConnectClient( ComMsg* szMsg )
     strcpy( body.result, MSG_RESULT_SUCC );
     memcpy( msg.body, &body, sizeof(body));
     SOCKET cltSock = m_sock.GetSelectSock();
-    if( SendMsg( cltSock, (char*)&msg, HEADER_SIZE+sizeof (body)) == CSOCKET_FAIL)
+    if( SendMsg( cltSock, (char*)&msg, HEADER_SIZE+sizeof(body.result)) == CSOCKET_FAIL)
     {
         //실패처리
         m_log.WriteLog(LOG_LEVEL_ERROR, "ConnectClient : Send Error error[%d] clt[%d]", GetLastError(),it->first);
-        m_log.WriteHEX(LOG_LEVEL_DETAIL, (char*)&msg, HEADER_SIZE+sizeof (body));
+        m_log.WriteHEX(LOG_LEVEL_DETAIL, (char*)&msg, HEADER_SIZE+sizeof (body.result));
     }
     else
     {
@@ -290,6 +294,7 @@ void SvrSock::ConnectClient( ComMsg* szMsg )
         }
 
         //추가
+        m_log.WriteLog(LOG_LEVEL_NORMAL, "ConnectClient : Add Client clt[%d] unsername[%s]", cltSock, strUserName.c_str() );
         m_cltMap[cltSock] = strUserName;
     }
 
