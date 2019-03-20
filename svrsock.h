@@ -33,6 +33,7 @@ public:
     void SendChat( ComMsg* szMsg );
     void MakeHeader( ComMsg* msg, const char* szSrc, const char* szDest, const char* szKind, const char* szId);
     SOCKET GetSock();
+    SOCKET GetSelectSock();
 
 };
 

@@ -54,7 +54,7 @@ int main()
                 else
                 {
                     //cout << "11111111111111" << endl;
-                    sock.DisconnectSock(nRet);
+                    sock.DisconnectSock(sock.GetSelectSock());
                 }
             }
 
