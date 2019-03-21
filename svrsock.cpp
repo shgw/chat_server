@@ -11,7 +11,6 @@ SvrSock::SvrSock()
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ServerSocket.txt");
     m_sock.SetSocketEx( "0.0.0.0", 6788, 100, 100 );
     m_log.WriteLog( LOG_LEVEL_NOTICE, "==========SERVER START============");
-    m_sock.StartServerSocket();
 }
 
 
@@ -20,14 +19,26 @@ SvrSock::SvrSock( char* szIP, int nPort, int nRcvTimeOut, int nSndTimeOut)
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ServerSocket.txt");
     m_sock.SetSocketEx( szIP, nPort, nRcvTimeOut, nSndTimeOut );
     m_log.WriteLog( LOG_LEVEL_NOTICE, "==========SERVER START============");
-    m_sock.StartServerSocket();
-
 }
-
 
 SvrSock::~SvrSock()
 {
 
+}
+
+int SvrSock::Start()
+{
+    int nRet = m_sock.StartServerSocket();
+    if( nRet <= 0 )
+    {
+        m_log.WriteLog(LOG_LEVEL_ERROR, "Start() : Socket start fail. Error[%d]", GetLastError());
+    }
+    else
+    {
+        m_log.WriteLog(LOG_LEVEL_NORMAL, "Start() : Socket start success");
+    }
+
+    return nRet;
 }
 
 int SvrSock::Wait()

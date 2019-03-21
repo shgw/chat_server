@@ -4,6 +4,9 @@
 #ifdef __LINUX
 #include <unistd.h>
 #define Sleep usleep
+#define SLEEP_TIME  1000
+#else
+#define SLEEP_TIME  1
 #endif
 
 using namespace std;
@@ -17,14 +20,20 @@ int main()
 
     char szBuff[BODY_LENGTH] = { 0 };
     SvrSock sock;
-
     int nRet;
+
+    nRet = sock.Start();
+    if( nRet <= 0 )
+    {
+        cout << "Socket start fail." << endl;
+        return -1;
+    }
     while(1)
     {
         nRet = sock.Wait();
         if( nRet == CSOCKET_CONTINUE )
         {
-            Sleep(1);
+            Sleep(SLEEP_TIME);
             continue;
         }
         else if ( nRet > 0)
@@ -42,7 +51,7 @@ int main()
                 if( nRet == CSOCKET_CONTINUE)
                 {
                     //cout << "CSOCKET_CONTINUE" << endl;
-                    Sleep(1);
+                    Sleep(SLEEP_TIME);
                     continue;
                 }
                 else if ( nRet == CSOCKET_SUCC)
@@ -60,7 +69,7 @@ int main()
 
         }
 
-        Sleep(1);
+        Sleep(SLEEP_TIME);
     }
 
     //cout << "11111111111111111111" << endl;

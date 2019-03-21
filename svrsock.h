@@ -22,6 +22,7 @@ public:
     SvrSock( char* szIP, int nPort, int nRcvTimeOut, int nSndTimeOut);
     ~SvrSock();
 
+    int Start();
     int Wait();
     int Accept();
     void DisconnectSock(SOCKET cltsock );

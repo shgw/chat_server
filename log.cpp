@@ -86,6 +86,7 @@ int CLog::WriteHEX( int nLevel, char* log, int nLen)
     sprintf( buf, "log size [%d]\n", nLen);
     strLog += buf;
 
+    memset( buf, 0x00, sizeof(buf));
 
     for( int i = 0 ; i < nLen / nRow ; i ++)
     {
