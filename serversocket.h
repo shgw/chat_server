@@ -7,7 +7,9 @@
 #endif
 
 #define MAX_EVENTS  10
-#define POLL_TIMOUT 100
+
+#define CSERVER_ACCEPT  1
+#define CSERVER_RECV    2
 
 class CServerSocket : public CSocket
 {
@@ -23,7 +25,7 @@ private:
 
 public:
     int StartServerSocket();
-    SOCKET SelectSocket(int usec);
+    int SelectSocket(int usec);
     SOCKET AcceptSocket();
     int RecvMsg( char* szMsg, int nLen);
     int SendMsg(SOCKET cltsock, char* szMsg, int nLen);

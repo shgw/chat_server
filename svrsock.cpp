@@ -164,6 +164,13 @@ int SvrSock::RecvMsg( char* szMsg )
         if( nSize >  0 )
         {
             m_log.WriteLog(LOG_LEVEL_DETAIL, "RecvMsg : recv length cltsock[%d] size[%d]", m_sock.GetSelectSock(), nSize );
+
+            if( nSize > MSG_FULL_LENGTH )
+            {
+                m_log.WriteLog( LOG_LEVEL_WARN, "RecvMsg : too long length cltsock[%d] size[%d] limit[%d]", m_sock.GetSelectSock(), nSize, MSG_FULL_LENGTH);
+                return CSOCKET_FAIL;
+            }
+
             nRet = m_sock.RecvMsg( szMsg, nSize );
             if( nRet > 0)
             {

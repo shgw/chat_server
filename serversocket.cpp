@@ -48,7 +48,7 @@ int CServerSocket::StartServerSocket()
     return m_sock;
 }
 
-SOCKET CServerSocket::SelectSocket(int usec)
+int CServerSocket::SelectSocket(int usec)
 {
     int nRet;
 
@@ -78,11 +78,18 @@ SOCKET CServerSocket::SelectSocket(int usec)
 
     if(FD_ISSET(m_selectsock, &m_oldfds))
     {
-        return m_selectsock;
+        if( m_selectsock == m_sock )
+            return CSERVER_ACCEPT;
+        else
+            return CSERVER_RECV;
     }
 #else
     m_selectsock = m_epEvent[0].data.fd;
-    return m_selectsock;
+    if( m_selectsock == m_sock)
+        return CSERVER_ACCEPT;
+    else
+        return CSERVER_RECV;
+
 #endif
 
     return CSOCKET_CONTINUE;
