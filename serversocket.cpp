@@ -50,12 +50,7 @@ int CServerSocket::StartServerSocket()
 
 SOCKET CServerSocket::SelectSocket(int usec)
 {
-
-
     int nRet;
-    int nCount;
-    SOCKET rcvsock;
-
 
 #ifndef __LINUX
     m_oldfds = m_cltfds;
@@ -64,10 +59,8 @@ SOCKET CServerSocket::SelectSocket(int usec)
     t.tv_sec = 0;
     t.tv_usec = usec;
     nRet = select( NULL, &m_oldfds, NULL, NULL, &t);
-    nCount = m_oldfds.fd_count;
 #else    
     nRet = epoll_wait( m_epfd, m_epEvent, MAX_EVENTS, usec );
-    nCount = nRet;
 #endif
 
     if( nRet < 0 )
@@ -80,22 +73,17 @@ SOCKET CServerSocket::SelectSocket(int usec)
         return CSOCKET_CONTINUE;
     }
 
-    for( int i = 0 ; i < nCount ; i++ )
-    {
 #ifndef __LINUX        
-        rcvsock =  m_oldfds.fd_array[i];        
-        m_selectsock = rcvsock;
+    m_selectsock =  m_oldfds.fd_array[0];
 
-        if(FD_ISSET(rcvsock, &m_oldfds))
-        {
-            return rcvsock;
-        }
-#else
-        m_selectsock = m_epEvent[i].data.fd;
+    if(FD_ISSET(m_selectsock, &m_oldfds))
+    {
         return m_selectsock;
-#endif
-
     }
+#else
+    m_selectsock = m_epEvent[0].data.fd;
+    return m_selectsock;
+#endif
 
     return CSOCKET_CONTINUE;
 }
