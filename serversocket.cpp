@@ -11,6 +11,13 @@
 
 int CServerSocket::StartServerSocket()
 {
+#ifdef __LINUX
+    m_epfd = epoll_create( MAX_EVENTS );
+    if( m_epfd < 0 )
+    {
+        return CSOCKET_FAIL;
+    }
+#endif
     int nRet = CSocket::CreateSocket();
     if( nRet == CSOCKET_FAIL ) return CSOCKET_FAIL;
 
@@ -27,11 +34,15 @@ int CServerSocket::StartServerSocket()
         return CSOCKET_FAIL;
     }
 
+#ifdef __LINUX
+    struct epoll_event ev = { 0 };
+
+    ev.events = EPOLLIN;
+    ev.data.fd = m_sock;
+    epoll_ctl( m_epfd, EPOLL_CTL_ADD, m_sock, &ev );
+#else
     FD_ZERO(&m_cltfds);
     FD_SET(m_sock, &m_cltfds);
-
-#ifdef __LINUX
-    m_maxfd = m_sock;
 #endif
 
     return m_sock;
@@ -39,21 +50,24 @@ int CServerSocket::StartServerSocket()
 
 SOCKET CServerSocket::SelectSocket(int usec)
 {
-    m_oldfds = m_cltfds;
+
 
     int nRet;
     int nCount;
     SOCKET rcvsock;
+
+
+#ifndef __LINUX
+    m_oldfds = m_cltfds;
+
     struct timeval t;
     t.tv_sec = 0;
     t.tv_usec = usec;
-
-#ifndef __LINUX
     nRet = select( NULL, &m_oldfds, NULL, NULL, &t);
     nCount = m_oldfds.fd_count;
-#else
-    nCount = m_maxfd+1;
-    nRet = select( m_maxfd+1, &m_oldfds, NULL, NULL, &t);
+#else    
+    nRet = epoll_wait( m_epfd, m_epEvent, MAX_EVENTS, usec );
+    nCount = nRet;
 #endif
 
     if( nRet < 0 )
@@ -70,15 +84,17 @@ SOCKET CServerSocket::SelectSocket(int usec)
     {
 #ifndef __LINUX        
         rcvsock =  m_oldfds.fd_array[i];        
-#else
-        rcvsock = i;        
-#endif
         m_selectsock = rcvsock;
 
         if(FD_ISSET(rcvsock, &m_oldfds))
         {
             return rcvsock;
         }
+#else
+        m_selectsock = m_epEvent[i].data.fd;
+        return m_selectsock;
+#endif
+
     }
 
     return CSOCKET_CONTINUE;
@@ -103,9 +119,14 @@ SOCKET CServerSocket::AcceptSocket()
     {
         return CSOCKET_FAIL;
     }
-    FD_SET(cltsock, &m_cltfds);
+
 #ifdef __LINUX
-    if( cltsock > m_maxfd)  m_maxfd = cltsock;
+    struct epoll_event ev = { 0 };
+    ev.events = EPOLLIN;
+    ev.data.fd = cltsock;
+    epoll_ctl( m_epfd, EPOLL_CTL_ADD, cltsock, &ev );
+#else
+    FD_SET(cltsock, &m_cltfds);
 #endif
 
     return cltsock;
@@ -148,6 +169,7 @@ int CServerSocket::RecvMsg( char* szMsg, int nLen )
             nMsgLen = 0;
         }
     }
+
     return nTmp;
 
 }
@@ -187,7 +209,11 @@ void CServerSocket::ShutdownSocket( SOCKET cltsock)
 void CServerSocket::DisconnectSocket(SOCKET cltsock)
 {
     closesocket( cltsock );
+#ifdef __LINUX
+    epoll_ctl( m_epfd, EPOLL_CTL_DEL, cltsock, m_epEvent );
+#else
     FD_CLR( cltsock, &m_cltfds );
+#endif
 }
 
 SOCKET CServerSocket::GetSelectSock()
