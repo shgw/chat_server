@@ -13,14 +13,14 @@
 
 class CServerSocket : public CSocket
 {
-private:
-    fd_set m_cltfds;
-    fd_set m_oldfds;
+private:    
     SOCKET m_selectsock;
 #ifdef __LINUX    
     struct epoll_event m_epEvent[MAX_EVENTS];
     int m_epfd;
-    int m_maxfd;
+#else
+    fd_set m_cltfds;
+    fd_set m_oldfds;
 #endif
 
 public:

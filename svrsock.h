@@ -2,8 +2,8 @@
 #define SVRSOCK_H
 
 #include <map>
-#include <serversocket.h>
-#include <log.h>
+#include "serversocket.h"
+#include "log.h"
 #include <string>
 #include "socketmessage.h"
 
@@ -33,8 +33,6 @@ public:
     void ConnectClient( ComMsg* szMsg );
     void SendChat( ComMsg* szMsg );
     void MakeHeader( ComMsg* msg, const char* szSrc, const char* szDest, const char* szKind, const char* szId);
-    SOCKET GetSock();
-    SOCKET GetSelectSock();
 
 };
 

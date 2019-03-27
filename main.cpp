@@ -53,10 +53,6 @@ int main()
                 sock.ProcMsg( szBuff );
 
             }
-            else
-            {
-                sock.DisconnectSock(sock.GetSelectSock());
-            }
             break;
 
         case CSOCKET_FAIL:

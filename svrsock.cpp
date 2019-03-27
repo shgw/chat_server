@@ -168,6 +168,7 @@ int SvrSock::RecvMsg( char* szMsg )
             if( nSize > MSG_FULL_LENGTH )
             {
                 m_log.WriteLog( LOG_LEVEL_WARN, "RecvMsg : too long length cltsock[%d] size[%d] limit[%d]", m_sock.GetSelectSock(), nSize, MSG_FULL_LENGTH);
+                DisconnectSock( m_sock.GetSelectSock() );
                 return CSOCKET_FAIL;
             }
 
@@ -184,6 +185,7 @@ int SvrSock::RecvMsg( char* szMsg )
             {
                 // 角菩贸府
                 m_log.WriteLog(LOG_LEVEL_ERROR, "RecvMsg : recv fail error[%d] cltsock[%d]", GetLastError(), m_sock.GetSelectSock() );
+                DisconnectSock( m_sock.GetSelectSock() );
                 return CSOCKET_FAIL;
             }
 
@@ -193,7 +195,7 @@ int SvrSock::RecvMsg( char* szMsg )
         {
             //角菩贸府
             m_log.WriteLog(LOG_LEVEL_ERROR, "RecvMsg : wrong length cltsock[%d] Size[%d]", m_sock.GetSelectSock(), nSize );
-            //DisconnectSock( m_sock.GetSelectSock() );
+            DisconnectSock( m_sock.GetSelectSock() );
             return CSOCKET_FAIL;
         }
     }
@@ -206,7 +208,7 @@ int SvrSock::RecvMsg( char* szMsg )
     {
         //角菩贸府
         m_log.WriteLog(LOG_LEVEL_ERROR, "RecvMsg : recv length fail error[%d] cltsock[%d]", GetLastError(), m_sock.GetSelectSock() );
-        //DisconnectSock( m_sock.GetSelectSock() );
+        DisconnectSock( m_sock.GetSelectSock() );
         return CSOCKET_FAIL;
     }
 }
@@ -413,20 +415,6 @@ void SvrSock::MakeHeader( ComMsg* msg, const char* szSrc, const char* szDest, co
     strcpy( msg->msgkind, szKind);
     strcpy( msg->msgid, szId );
 }
-
-
-SOCKET SvrSock::GetSock()
-{
-    return m_sock.GetSock();
-}
-
-SOCKET SvrSock::GetSelectSock()
-{
-    return m_sock.GetSelectSock();
-
-}
-
-
 
 
 

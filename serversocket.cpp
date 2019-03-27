@@ -199,16 +199,20 @@ int CServerSocket::SendMsg(SOCKET cltsock, char* szMsg, int nLen)
 void CServerSocket::ShutdownSocket( SOCKET cltsock)
 {
    shutdown( cltsock, SD_BOTH );
+#ifndef __LINUX
    FD_CLR( cltsock, &m_cltfds );
+#else
+   epoll_ctl( m_epfd, EPOLL_CTL_DEL, cltsock, m_epEvent );
+#endif
 }
 void CServerSocket::DisconnectSocket(SOCKET cltsock)
-{
-    closesocket( cltsock );
+{    
 #ifdef __LINUX
     epoll_ctl( m_epfd, EPOLL_CTL_DEL, cltsock, m_epEvent );
 #else
     FD_CLR( cltsock, &m_cltfds );
 #endif
+    closesocket( cltsock );
 }
 
 SOCKET CServerSocket::GetSelectSock()
